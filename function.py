@@ -73,15 +73,15 @@ def localFCWithDropout(input, outChannels, batch_size, keep_prob, name):
         return drop
 
 
-def sotfMax(input, batch_size, name='softmax'):
+def sotfMax(input, n_class, name='softmax'):
     dim = input.get_shape()[1].value
     with tf.variable_scope(name) as scope:
         weights = tf.get_variable('weights',
-                                  shape=[dim, batch_size],
+                                  shape=[dim, n_class],
                                   dtype=tf.float32,
                                   initializer=tf.truncated_normal_initializer(stddev=0.1, dtype=tf.float32))
         biases = tf.get_variable('biases',
-                                 shape=[batch_size],
+                                 shape=[n_class],
                                  dtype=tf.float32,
                                  initializer=tf.constant_initializer(0.1))
         # softmax = tf.exp(logits) / tf.reduce_sum(tf.exp(logits), dim)
@@ -102,6 +102,7 @@ def readDataFromTF(filename, batch_size, shuffle=True):
         }
     )
     image = tf.decode_raw(img_features['image_raw'], tf.uint8)
+    print(image)
     image = tf.reshape(image, [img_w, img_h, 3])
     # 将数据类型转换
     image = tf.cast(image, tf.float32)
@@ -113,8 +114,8 @@ def readDataFromTF(filename, batch_size, shuffle=True):
             [image, label],
             batch_size=batch_size,
             num_threads=64,
-            capacity=20000,
-            min_after_dequeue=15000
+            capacity=2000,
+            min_after_dequeue=1500
         )
     else:
         image_batch, label_batch = tf.train.batch(
@@ -131,5 +132,29 @@ def readDataFromTF(filename, batch_size, shuffle=True):
     """
     label_batch = tf.one_hot(label_batch, depth=n_class)
     label_batch = tf.cast(label_batch, dtype=tf.int32)
-    label_batch = tf.reshape(label_batch, [label_batch, n_class])
+    label_batch = tf.reshape(label_batch, [batch_size, n_class])
     return image_batch, label_batch
+
+
+def loss(logits, labels):
+    with tf.name_scope('loss') as scope:
+        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels, name='cross_entropy')
+        loss = tf.reduce_mean(cross_entropy, name='loss')
+        tf.summary.scalar(scope + "/loss", loss)
+        return loss
+
+
+def optimize(loss, learning_rate, global_step):
+    with tf.name_scope("optimize"):
+        optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate)
+        train_op = optimizer.minimize(loss=loss, global_step=global_step)
+        return train_op
+
+
+def accuracy(logits, labels):
+    with tf.name_scope('accuracy') as scope:
+        correct = tf.equal(tf.argmax(logits, 1), tf.argmax(labels, 1))
+        correct = tf.cast(correct, tf.float32)
+        accuracy = tf.reduce_mean(correct) * 100.0
+        tf.summary.scalar(scope + "/accuracy", accuracy)
+        return accuracy
