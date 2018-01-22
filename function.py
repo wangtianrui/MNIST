@@ -123,3 +123,13 @@ def readDataFromTF(filename, batch_size, shuffle=True):
             num_threads=64,
             capacity=2000
         )
+
+    # 生成一个[batch_size,n_class]的稀疏矩阵，用来表示label
+    """
+    [ 1,0,0,0,0,0,0,0,0,0 ] 表示label为0
+    [ 0,1,0,0,0,0,0,0,0,0 ] 表示label为1
+    """
+    label_batch = tf.one_hot(label_batch, depth=n_class)
+    label_batch = tf.cast(label_batch, dtype=tf.int32)
+    label_batch = tf.reshape(label_batch, [label_batch, n_class])
+    return image_batch, label_batch
