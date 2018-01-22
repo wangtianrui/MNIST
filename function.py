@@ -39,6 +39,7 @@ def localFC(input, outChannels, batch_size, name):
         # reshape(t, [-1]) == > [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6]
         reshape = tf.reshape(input, shape=[batch_size, -1])
         dim = reshape.get_shape()[1].value
+        print("test:",dim)
         weights = tf.get_variable('weights',
                                   shape=[dim, outChannels],
                                   dtype=tf.float32,
