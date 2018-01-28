@@ -5,6 +5,16 @@ img_h = 28
 n_class = 10
 
 
+def weight_variable(shape):
+    initial = tf.truncated_normal(shape, stddev=0.1)
+    return tf.Variable(initial)
+
+
+def bias_variable(shape):
+    initial = tf.constant(0.1, shape=shape)
+    return tf.Variable(initial)
+
+
 def conv(input, ksize, strides, name, padding='SAME'):
     with tf.variable_scope(name) as scope:
         weights = tf.get_variable('weights',
