@@ -12,6 +12,7 @@ def net(input, batch_size, num_class, keep_prob, name):
         print(pool2)
         local1 = function.localFCWithDropout(pool2, 1024, batch_size=batch_size, keep_prob=keep_prob, name="local1")
         print(local1)
+
         with tf.variable_scope('softmax_linear') as scope:
             weights = tf.get_variable('softmax_linear',
                                       shape=[1024, num_class],
@@ -22,6 +23,9 @@ def net(input, batch_size, num_class, keep_prob, name):
                                      dtype=tf.float32,
                                      initializer=tf.constant_initializer(0.1))
             softmax = tf.add(tf.matmul(local1, weights), biases, name='softmax_linear')
+
+        #weights = function.weight_variable([])
+        #softmax = function.localFC()
         print(softmax)
 
         return softmax
