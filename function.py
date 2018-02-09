@@ -173,7 +173,8 @@ def readDataFromTF(filename, batch_size, shuffle=True):
 def loss(logits, labels):
     with tf.name_scope('loss') as scope:
         #cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels, name='cross_entropy')
-        cross_entropy =  tf.reduce_mean(-tf.reduce_sum(labels*tf.log(logits), reduction_indices=[1]))
+        #cross_entropy =  tf.reduce_mean(-tf.reduce_sum(labels*tf.log(logits), reduction_indices=[1]))
+        cross_entropy = -tf.reduce_sum(labels*tf.log(logits))
         loss = tf.reduce_mean(cross_entropy, name='loss')
         tf.summary.scalar(scope + "/loss", loss)
         return loss
