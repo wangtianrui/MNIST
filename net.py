@@ -26,6 +26,6 @@ def net(input, batch_size, num_class, keep_prob, name):
 
         #weights = function.weight_variable([])
         #softmax = function.localFC()
-        print(softmax)
+        print("1",softmax)
 
         return softmax

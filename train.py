@@ -28,7 +28,7 @@ def train():
                                name="train_accuracy")
         test_logits = net.net(test_image_batch, batch_size=batch_size, num_class=n_class, keep_prob=1.0,
                               name='test_accuracy')
-        print(train_label_batch)
+        print("int?",train_label_batch)
         loss = function.loss(logits=logits, labels=train_label_batch)
         #loss = tf.reduce_mean(-tf.reduce_sum(train_label_batch * tf.log(logits), reduction_indices=[1]))
         train_accuracy = function.accuracy(train_logits, train_label_batch)
