@@ -17,7 +17,7 @@ TEST_FILENAME = "F:/Traindata/MNIST_pictures/MNISTTest.tfrecords"
 
 TRAIN_RESULTS_FILENAME = "F:/Traindata/MNIST_pictures/result"
 
-#
+#1
 def train():
     with tf.variable_scope("input"):
         train_image_batch, train_label_batch = function.readDataFromTF(TRAIN_FILENAME, batch_size=batch_size)
