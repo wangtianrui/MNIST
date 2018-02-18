@@ -165,7 +165,7 @@ def readDataFromTF(filename, batch_size, shuffle=True):
     [ 0,1,0,0,0,0,0,0,0,0 ] 表示label为1
     """
     label_batch = tf.one_hot(label_batch, depth=n_class)
-    label_batch = tf.cast(label_batch, dtype=tf.float32)
+    label_batch = tf.cast(label_batch, dtype=tf.int32)
     label_batch = tf.reshape(label_batch, [batch_size, n_class])
     #label_batch = tf.cast(label_batch,tf.float32)
     return image_batch, label_batch
@@ -173,12 +173,15 @@ def readDataFromTF(filename, batch_size, shuffle=True):
 
 def loss(logits, labels):
     with tf.name_scope('loss') as scope:
-        #cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels, name='cross_entropy')
-        cross_entropy =  tf.reduce_mean(-tf.reduce_sum(labels*tf.log(logits), reduction_indices=[1]))
+        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels, name='cross_entropy')
+        cross_entropy_mean = tf.reduce_mean(cross_entropy, name='cross_entropy')
+        tf.add_to_collection('losses', cross_entropy_mean)
+        #cross_entropy =  tf.reduce_mean(-tf.reduce_sum(labels*tf.log(logits), reduction_indices=[1]))
         #cross_entropy = -tf.reduce_sum(labels*tf.log(logits))
         #loss = tf.reduce_mean(cross_entropy, name='loss')
         #tf.summary.scalar(scope + "/loss", loss)
-        return cross_entropy
+        #return cross_entropy
+        return tf.add_n(tf.get_collection('losses'), name='total_loss')
 
 
 def optimize(loss, learning_rate, global_step):
