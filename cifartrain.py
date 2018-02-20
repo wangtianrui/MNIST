@@ -3,35 +3,48 @@ import numpy as np
 import os
 import net
 import function
-import cifar_input_data
+import cifar10_input
 n_class = 10
 batch_size = 27
 img_w = 32
 img_h = 32
 LEARNING_RATE = 0.0001
-MAX_STEP = 20000
+MAX_STEP = 3000
 CAPACITY = 2000
 
-TRAIN_FILENAME = "E:/python_programes/huawuVGG/data/"
-TEST_FILENAME = "F:/Traindata/MNIST_pictures/MNISTTest.tfrecords"
+TRAIN_FILENAME ='E:/python_programes/My-TensorFlow-tutorials/02 CIFAR10/data/cifar-10-batches-bin/'
+TEST_FILENAME = 'E:/python_programes/My-TensorFlow-tutorials/02 CIFAR10/data/'
 
-TRAIN_RESULTS_FILENAME = "F:/Traindata/MNIST_pictures/result"
+TRAIN_RESULTS_FILENAME = "F:/Traindata/MNIST_pictures/result/"
 
 #1
 def train():
     with tf.variable_scope("input"):
-        train_image_batch, train_label_batch = cifar_input_data.input_from_binary(TRAIN_FILENAME,batch_size)
-        test_image_batch, test_label_batch =cifar_input_data.input_from_binary(TRAIN_FILENAME,batch_size)
+        train_image_batch, train_label_batch = cifar10_input.read_cifar10(data_dir=TRAIN_FILENAME,
+                                                is_train=True,
+                                                batch_size=batch_size,
+                                                shuffle=True)
+        test_image_batch, test_label_batch =cifar10_input.read_cifar10(data_dir=TEST_FILENAME,
+                                                is_train=False,
+                                                batch_size=batch_size,
+                                                shuffle=True)
 
-        logits = net.net(train_image_batch, batch_size=batch_size, num_class=n_class, keep_prob=0.5, name="train")
+        #logits = net.net(train_image_batch, batch_size=batch_size, num_class=n_class, keep_prob=0.5, name="train")
+        logits = net.inference(train_image_batch)
+        """
         train_logits = net.net(train_image_batch, batch_size=batch_size, num_class=n_class, keep_prob=1.0,
                                name="train_accuracy")
         test_logits = net.net(test_image_batch, batch_size=batch_size, num_class=n_class, keep_prob=1.0,
                               name='test_accuracy')
+        """
+        #train_logits =  net.inference(train_image_batch)
+        with tf.variable_scope("test"):
+            test_logits = net.inference(test_image_batch)
         print("int?",train_label_batch)
         loss = function.loss(logits=logits, labels=train_label_batch)
         #loss = tf.reduce_mean(-tf.reduce_sum(train_label_batch * tf.log(logits), reduction_indices=[1]))
-        train_accuracy = function.accuracy(train_logits, train_label_batch)
+        #train_accuracy = function.accuracy(train_logits, train_label_batch)
+        train_accuracy = function.accuracy(logits, train_label_batch)
         test_accuracy = function.accuracy(test_logits, test_label_batch)
 
         my_global_step = tf.Variable(0, name='global_step')

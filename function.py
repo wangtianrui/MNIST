@@ -95,12 +95,13 @@ def localFCWithDropout(input, outChannels, batch_size, keep_prob, name):
         drop = tf.nn.dropout(local, keep_prob=keep_prob, name="dropout")
         return drop
 
+
 def localFCWithDropout2(input, outChannels, batch_size, keep_prob, name):
     with tf.variable_scope(name) as scope:
         # reshape(t, [-1]) == > [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6]
         reshape = tf.reshape(input, shape=[batch_size, -1])
         dim = reshape.get_shape()[1].value
-        weights = weight_variable([dim,outChannels])
+        weights = weight_variable([dim, outChannels])
         biases = bias_variable([outChannels])
         local = tf.nn.relu(tf.matmul(reshape, weights) + biases, name=scope.name)
         drop = tf.nn.dropout(local, keep_prob=keep_prob, name="dropout")
@@ -167,7 +168,7 @@ def readDataFromTF(filename, batch_size, shuffle=True):
     label_batch = tf.one_hot(label_batch, depth=n_class)
     label_batch = tf.cast(label_batch, dtype=tf.int32)
     label_batch = tf.reshape(label_batch, [batch_size, n_class])
-    #label_batch = tf.cast(label_batch,tf.float32)
+    # label_batch = tf.cast(label_batch,tf.float32)
     return image_batch, label_batch
 
 
@@ -176,12 +177,29 @@ def loss(logits, labels):
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels, name='cross_entropy')
         cross_entropy_mean = tf.reduce_mean(cross_entropy, name='cross_entropy')
         tf.add_to_collection('losses', cross_entropy_mean)
-        #cross_entropy =  tf.reduce_mean(-tf.reduce_sum(labels*tf.log(logits), reduction_indices=[1]))
-        #cross_entropy = -tf.reduce_sum(labels*tf.log(logits))
-        #loss = tf.reduce_mean(cross_entropy, name='loss')
-        #tf.summary.scalar(scope + "/loss", loss)
-        #return cross_entropy
+        # cross_entropy =  tf.reduce_mean(-tf.reduce_sum(labels*tf.log(logits), reduction_indices=[1]))
+        # cross_entropy = -tf.reduce_sum(labels*tf.log(logits))
+        # loss = tf.reduce_mean(cross_entropy, name='loss')
+        # tf.summary.scalar(scope + "/loss", loss)
+        # return cross_entropy
         return tf.add_n(tf.get_collection('losses'), name='total_loss')
+
+
+def losses(logits, labels):
+    with tf.variable_scope('loss') as scope:
+        labels = tf.cast(labels, tf.int64)
+
+        # to use this loss fuction, one-hot encoding is needed!
+        cross_entropy = tf.nn.softmax_cross_entropy_with_logits \
+            (logits=logits, labels=labels, name='xentropy_per_example')
+
+        #        cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits/
+        #                        (logits=logits, labels=labels, name='xentropy_per_example')
+
+        loss = tf.reduce_mean(cross_entropy, name='loss')
+        tf.summary.scalar(scope.name + '/loss', loss)
+
+    return loss
 
 
 def optimize(loss, learning_rate, global_step):
