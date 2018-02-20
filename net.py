@@ -1,6 +1,6 @@
 import tensorflow as tf
 import function
-BATCH_SIZE = 27
+BATCH_SIZE = 32
 
 
 def net(input, batch_size, num_class, keep_prob, name):

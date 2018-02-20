@@ -210,9 +210,16 @@ def optimize(loss, learning_rate, global_step):
 
 
 def accuracy(logits, labels):
-    with tf.name_scope('accuracy') as scope:
-        correct = tf.equal(tf.argmax(logits, 1), tf.argmax(labels, 1))
-        correct = tf.cast(correct, tf.float32)
-        accuracy = tf.reduce_mean(correct) * 100.0
-        tf.summary.scalar(scope + "/accuracy", accuracy)
-        return accuracy
+    correct = tf.equal(tf.argmax(logits, 1), tf.argmax(labels, 1))
+    correct = tf.cast(correct, tf.float32)
+    accuracy = tf.reduce_mean(correct) * 100.0
+    accuracy = tf.cast(accuracy, tf.float32)
+    return accuracy
+
+
+def accuracy22(logits, labels):
+    correct = tf.equal(tf.argmax(logits, 1), tf.argmax(labels, 1))
+    correct = tf.cast(correct, tf.float32)
+    accuracy = tf.reduce_mean(correct) * 100.0
+    accuracy = tf.cast(accuracy, tf.float32)
+    return accuracy
