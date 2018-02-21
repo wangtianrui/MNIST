@@ -25,29 +25,26 @@ def train():
                                                                       is_train=True,
                                                                       batch_size=batch_size,
                                                                       shuffle=True)
-    test_image_batch, test_label_batch = cifar10_input.read_cifar10(data_dir=TEST_FILENAME,
-                                                                    is_train=False,
-                                                                    batch_size=batch_size,
-                                                                    shuffle=False)
 
-    # logits = net.net(train_image_batch, batch_size=batch_size, num_class=n_class, keep_prob=0.5, name="train")
-    logits = net.inference(train_image_batch)
+    logits = net.net(train_image_batch, batch_size=batch_size, num_class=n_class, keep_prob=0.5, name="train")
+    #logits = net.inference(train_image_batch)
     """
     train_logits = net.net(train_image_batch, batch_size=batch_size, num_class=n_class, keep_prob=1.0,
                            name="train_accuracy")
     test_logits = net.net(test_image_batch, batch_size=batch_size, num_class=n_class, keep_prob=1.0,
                           name='test_accuracy')
-    """
+   
     # train_logits =  net.inference(train_image_batch)
     with tf.variable_scope("test"):
         test_logits = net.inference(test_image_batch)
+    """
     print("int?", train_label_batch)
     # loss = function.loss(logits=logits, labels=train_label_batch)
     loss = function.losses(logits, train_label_batch)
     # loss = tf.reduce_mean(-tf.reduce_sum(train_label_batch * tf.log(logits), reduction_indices=[1]))
     # train_accuracy = function.accuracy(train_logits, train_label_batch)
     train_accuracy = function.accuracy(logits, train_label_batch)
-    test_accuracy = function.accuracy(test_logits, test_label_batch)
+    #test_accuracy = function.accuracy(test_logits, test_label_batch)
 
     my_global_step = tf.Variable(0, name='global_step')
     optimizer = tf.train.GradientDescentOptimizer(LEARNING_RATE)
@@ -74,9 +71,10 @@ def train():
 
             _, train_loss = sess.run([train_op, loss])
             if step == MAX_STEP or step == MAX_STEP - 1:
-                testaccuracy, trainaccuracy = sess.run([test_accuracy, train_accuracy])
-                print('***** Step: %d, loss: %.4f, test Set accuracy: %.4f%% ,train Set accuracy: %.4f%% *****'
-                      % (step, train_loss, testaccuracy, trainaccuracy))
+                trainaccuracy = sess.run([train_accuracy])
+                trainaccuracy = trainaccuracy[0]
+                print('***** Step: %d, loss: %.4f,train Set accuracy: %.4f%% *****'
+                      % (step, train_loss, trainaccuracy))
                 summary_str = sess.run(summary_op)
                 tra_summary_writer.add_summary(summary_str, step)
                 checkpoint_path = os.path.join(TRAIN_RESULTS_FILENAME, 'model.ckpt')
@@ -86,9 +84,10 @@ def train():
                 summary_str = sess.run(summary_op)
                 tra_summary_writer.add_summary(summary_str, step)
             if (step % 200 == 0) or (step == MAX_STEP):
-                testaccuracy, trainaccuracy = sess.run([test_accuracy, train_accuracy])
-                print('***** Step: %d, loss: %.4f, test Set accuracy: %.4f%% ,train Set accuracy: %.4f%% *****'
-                      % (step, train_loss, testaccuracy, trainaccuracy))
+                trainaccuracy = sess.run([train_accuracy])
+                trainaccuracy = trainaccuracy[0]
+                print('***** Step: %d, loss: %.4f ,train Set accuracy: %.4f%% *****'
+                      % (step, train_loss, trainaccuracy))
                 summary_str = sess.run(summary_op)
                 tra_summary_writer.add_summary(summary_str, step)
             if step % 2000 == 0 or step == MAX_STEP:

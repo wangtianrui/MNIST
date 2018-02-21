@@ -9,7 +9,8 @@ batch_size = 27
 img_w = 28
 img_h = 28
 LEARNING_RATE = 0.0001
-MAX_STEP = 20000
+MAX_STEP = 2000
+
 CAPACITY = 2000
 
 TRAIN_FILENAME = "F:/Traindata/MNIST_pictures/MNISTTrain.tfrecords"
@@ -29,7 +30,7 @@ def train():
         test_logits = net.net(test_image_batch, batch_size=batch_size, num_class=n_class, keep_prob=1.0,
                               name='test_accuracy')
         print("int?",train_label_batch)
-        loss = function.loss(logits=logits, labels=train_label_batch)
+        loss = function.losses(logits=logits, labels=train_label_batch)
         #loss = tf.reduce_mean(-tf.reduce_sum(train_label_batch * tf.log(logits), reduction_indices=[1]))
         train_accuracy = function.accuracy(train_logits, train_label_batch)
         test_accuracy = function.accuracy(test_logits, test_label_batch)

@@ -22,7 +22,8 @@ def evaluate():
                                                     batch_size=BATCH_SIZE,
                                                     shuffle=False)
 
-        logits = net.inference(images)
+        #logits = net.inference(images)
+        logits = net.net(images, batch_size=BATCH_SIZE, num_class=10, keep_prob=0.5, name="train")
         print("labels", labels)
         print("logits", logits)
         accuracy221 = function.accuracy22(logits, labels)
